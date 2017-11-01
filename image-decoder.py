@@ -30,7 +30,6 @@ def decode(file: pygame.Surface) -> (int, int, bytes, int, int):
     id = bytes()
     for i in idline:
         id += i
-    print(id)
     id = int(id.hex(), 16)
 
     thispartline = [file.get_at((i + 8, 0)) for i in range(4)]

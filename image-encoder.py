@@ -10,18 +10,19 @@ def get_color(value: int) -> pygame.Color:
 
 
 def get_string_of_colors(value: int, maxlen: int) -> [pygame.Color]:
-    value = bin(value)[2:]
+    value = hex(value)[2:]
+    value = "0" + value if len(value) % 2 == 1 else value
     value = [value[i:i + 2] for i in range(0, len(value), 2)]
     value = [int(i, 16) for i in value]
     value = [value[i:i + 3] for i in range(0, len(value), 3)]
     color_value = []
     for i in value:
         if len(i) == 3:
-            color_value.append(pygame.Color(i[0], i[1], i[2]))
+            color_value.append(pygame.Color(i[0], i[1], i[2], 255))
         if len(i) == 2:
-            color_value.append(pygame.Color(0, i[0], i[1]))
+            color_value.append(pygame.Color(0, i[0], i[1], 255))
         if len(i) == 1:
-            color_value.append(pygame.Color(0, 0, i[0]))
+            color_value.append(pygame.Color(0, 0, i[0], 255))
 
     color_value = ([get_color(0)] * (maxlen - len(color_value))) + color_value
     return color_value
@@ -71,4 +72,4 @@ def encode(obj_id: int, obj: bin, x: int, y: int, part_this: int, part_max: int)
 
 
 if __name__ == "__main__":
-    pygame.image.save(encode(0, os.urandom(16384), 100, 100, 1024, 2048), "test.png")
+    pygame.image.save(encode(10, b"F00L" * 100, 100, 100, 1024, 2048), "test.png")

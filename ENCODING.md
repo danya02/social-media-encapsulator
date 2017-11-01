@@ -1,4 +1,4 @@
-# Encoding description v.0.0.1
+# Encoding description v.0.0.2
 ## Images
 Pixels are to be read sequentially from left to right, and vertically downwards, i. e. normal human reading order.
 Each pixel is to be read as 3 bytes of information: the red byte, the green byte and the blue byte.
@@ -16,6 +16,11 @@ The number must be stored in a big-endian format.
 
 For example, if the number field's value is `00` `00` `00` `00` `00` `00` `00` `00` `be` `ef` `de` `ad` `00` `00` `00` `00` `00` `00` `00` `00` `de` `ad` `be` `ef`,
 then this is part 3203391149 of 3735928559.
+
+The following 16 pixels specify the length of this piece, in bytes.
+As before, this is big-endian.
+With 48 bytes, this field is good for lengths up to 39402006196394479212279040100143613805079739270465446667948293404245721771497210611414266254884915640806627990306815 bytes.
+
 
 The rest of this line is undefined.
 Use it in any way you may deem useful.

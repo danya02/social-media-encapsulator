@@ -7,3 +7,7 @@ Now, despite the highly dubious marketing of these plans, they may be useful to 
 It has to be noted, however, that they support pictures, videos, audios and texts and often have an easy-to-use API.
 
 Hmm...
+
+2 November 2017: The original idea has proven to be a bust.
+It would appear as if major social media encode their pictures in JPG, which is a lossy format, and discard the lossless originals.
+Since this program depends on losslessness of the pictures, that wouldn't work.

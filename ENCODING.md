@@ -1,26 +1,24 @@
-# Encoding description v.0.0.2
+# Encoding description v.0.0.3
 ## Images
 Pixels are to be read sequentially from left to right, and vertically downwards, i. e. normal human reading order.
-Each pixel is to be read as 3 bytes of information: the red byte, the green byte and the blue byte.
-The alpha channel must be ignored, as that information is most often lost.
+Each pixel is to be read as 1 bit of data: if the average color value is greater than 127, it's a 1; else, it's a 0.
 
-The first line contains metadata and must not be used for the composition of the binary file.
+The first 5 lines contain metadata and must not be used for the composition of the binary file.
 
-The first 8 pixels (24 bytes) must indicate the object ID.
+Numbers are encoded in a big-endian format, padded with zeros.
+Thus, for a field with a length of 32 bits, the number 78 should be encoded as follows: `00000000000000000000000001001110`.
+
+The first line must indicate the object ID.
 The ID must be unique to this object, or at least as unique as possible.
-One possible composition of this field is 1.5 [UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier).
 
-The following 8 pixels must indicate this piece's number: the first 4 pixels the number of this part, the next 4 pixels the total number of parts.
-The first piece should be number 1.
-The number must be stored in a big-endian format.
+The next two lines indicate this piece's number: the first line the number of this piece (from 1 upwards), and the second line the number of the last piece.
 
-For example, if the number field's value is `00` `00` `00` `00` `00` `00` `00` `00` `be` `ef` `de` `ad` `00` `00` `00` `00` `00` `00` `00` `00` `de` `ad` `be` `ef`,
-then this is part 3203391149 of 3735928559.
+The following 2 lines indicate this piece's length, in bytes.
+The number is to be broken across 2 lines; thus, if this piece is 69 bytes long and has a width of 10 pixels, then the values will be:
 
-The following 16 pixels specify the length of this piece, in bytes.
-As before, this is big-endian.
-With 48 bytes, this field is good for lengths up to 39402006196394479212279040100143613805079739270465446667948293404245721771497210611414266254884915640806627990306815 bytes.
+`0000000000`
+
+`0001000101`
 
 
-The rest of this line is undefined.
-Use it in any way you may deem useful.
+The rest of the file contains the actual data for this piece, wrapped at line length.

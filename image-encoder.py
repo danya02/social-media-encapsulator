@@ -39,7 +39,7 @@ def list_to_hex(value: list) -> str:
         return hex(value[0])[2:] + hex(value[1])[2:] + hex(value[2])[2:]
 
 
-def encode(obj_id: int, obj: bin, x: int, y: int, part_this: int, part_max: int) -> pygame.Surface:
+def encode_old(obj_id: int, obj: bin, x: int, y: int, part_this: int, part_max: int) -> pygame.Surface:
     s = pygame.Surface((x, y + 1))
     length = len(obj)
     c_length = get_string_of_colors(length, 16)
@@ -71,5 +71,42 @@ def encode(obj_id: int, obj: bin, x: int, y: int, part_this: int, part_max: int)
     return s
 
 
+def get_string_of_bin_colors(value: int, maxlen: int) -> [pygame.Color]:
+    value = bin(value)[2:]
+    color_value = [(pygame.Color('white' if int(i) else 'black')) for i in value]
+    color_value = ([get_color(0)] * (maxlen - len(color_value))) + color_value
+    return color_value
+
+
+def draw_line(obj: pygame.Surface, line: [pygame.Color], x: int) -> None:
+    for i, j in enumerate(line):
+        obj.set_at((i, x), j)
+
+
+def encode(obj_id: int, obj: bin, x: int, y: int, part_this: int, part_max: int) -> pygame.Surface:
+    s = pygame.Surface((x, y + 1))
+    c_obj_id = get_string_of_bin_colors(obj_id, x)
+    c_part_this = get_string_of_bin_colors(part_this, x)
+    c_part_max = get_string_of_bin_colors(part_max, x)
+    c_length = get_string_of_bin_colors(len(obj), x * 2)
+    c_length = [c_length[:x], c_length[x:]]
+    obj = bin(int(obj.hex(), 16))[2:]
+    obj = [obj[i:i + x] for i in range(0, len(obj), x)]
+    obj = [get_string_of_bin_colors(int(i, 2), x) for i in obj]
+    draw_line(s, c_obj_id, 0)
+    draw_line(s, c_part_this, 1)
+    draw_line(s, c_part_max, 2)
+    draw_line(s, c_length[0], 3)
+    draw_line(s, c_length[1], 4)
+    for i, j in enumerate(obj):
+        for k, l in enumerate(j):
+            s.set_at((k, i + 5), l)
+
+    return s
+
+
 if __name__ == "__main__":
-    pygame.image.save(encode(10, b"F00L" * 100, 100, 100, 1024, 2048), "test.png")
+    obj = b""
+    for i in range(128):
+        obj += bytes(chr(i), 'ascii')
+    pygame.image.save(encode(10, obj, 100, 100, 1024, 2048), "test.png")

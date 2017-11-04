@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import pygame
+import gzip
 
 pygame.init()
 
@@ -82,9 +83,13 @@ def decode(file: pygame.Surface) -> (int, int, bytes, int, int):
     blob = hex(list_to_int(blob))[2:]
     blob = (blob + "0") if len(blob) % 2 == 1 else blob
     blob = bytes.fromhex(blob)
-    blob = blob[:length + 1]
+    blob = blob[:length]
     return obj_id, length, blob, numthis, nummax
 
 
 if __name__ == "__main__":
-    print(decode(pygame.image.load("test.png")))
+    obj = decode(pygame.image.load("test.png"))
+    if obj[2][0] == 31:
+        print(gzip.decompress(obj[2]))
+    else:
+        print(obj)

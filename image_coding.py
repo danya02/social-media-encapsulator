@@ -52,6 +52,29 @@ def encode(itemid,data,width,height):
         files.append(f)
     return files
 
+def encode_single_page(item_id,data,width,height, part_num, max_part_num):
+    if height<=5:
+        raise ValueError('Height must be at least 6.')
+    if width*(height-5)<len(data):
+        raise IndexError('Height and width not enough for data; increase image size or decrease size of data.')
+    bitstring = bin(int(data.hex(),16))[2:]
+    pagelength=len(bitstring) # number of bits on this page
+    pagelength=bin(pagelength)[2:].rjust(2*width,'0')
+    pagelength=textwrap.wrap(pagelength,width)
+    bitstring = textwrap.wrap(bitstring,width) # split by lines
+    surface = pygame.Surface((width,height))
+    write_line(surface, 0, item_id)
+    write_line(surface, 1, part_num)
+    write_line(surface, 2, max_part_num)
+    write_line(surface, 3,pagelength[0],False)
+    write_line(surface, 4,pagelength[1],False)
+    for n,i in enumerate(bitstring):
+        write_line(surface, 5+n, i, integer=False, rjust=False)
+    uid=uuid.uuid4().hex
+    f=f'/tmp/{uid}.png'
+    pygame.image.save(surface,f)
+    return f
+
 def read_line(surface,line):
     '''Read a bitstring from a line from a surface.'''
     data=''
@@ -95,6 +118,18 @@ def decode(files):
     total_bitstring=bytes.fromhex(hex(int(total_bitstring,2))[2:])
     return total_bitstring
 
+def decode_single_page(file):
+    surface = pygame.image.load(file)
+    id = int(read_line(surface,0),2)
+    page_num = int(read_line(surface,1),2)
+    last_page_num = int(read_line(surface,2),2)
+    piece_len = int(read_line(surface,3)+read_line(surface,4),2)
+    bitstring=''
+    for n in range(5,surface.get_height()):
+        bitstring+=read_line(surface,n)
+    bitstring = bitstring[:piece_len]
+    data = bytes.fromhex(hex(int(bitstring,2))[2:])
+    return id,data,page_num,last_page_num
 
 
 

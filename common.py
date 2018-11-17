@@ -23,7 +23,7 @@ class Message:
         splits=[]
         while not head>=len(self.data):
             for i in transmitters:
-                newdata=[head:head+i.get_max_length()]
+                newdata=self.data[head:head+i.get_max_length()]
                 splits+=[(i,newdata,len(splits)+1)]
                 head+=i.get_max_length()
         return splits

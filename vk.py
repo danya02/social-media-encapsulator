@@ -22,8 +22,8 @@ class VkWallImageTransmitter(common.Transmitter):
     def remove(self,id):
         id = json.loads(id)
         api = self.connection.get_api()
-        api.wall.delete(id['post']['post_id'])
-        api.photos.delete(id['photo']['id'])
+        api.wall.delete(post_id=id['post']['post_id'])
+        api.photos.delete(photo_id=id['photo']['id'])
 
 class VkWallImageReciever(common.Receiver):
     def __init__(self,connection,peer_id):

@@ -13,7 +13,7 @@ class VkWallImageTransmitter(common.Transmitter):
     def send(self,id,data,part,partmax):
         width = max(128,math.ceil(math.sqrt(len(data)))) # make more optimal!
         height = width
-        file=image_coding.encode_single_page(id,data,width,height,part,partmax)
+        file=image_coding.encode_bw(id,data,width,height,part,partmax)
         uploader = vk_api.upload.VkUpload(self.connection)
         photo_id = uploader.photo_wall(file)[0]
         api = self.connection.get_api()
@@ -55,6 +55,6 @@ class VkWallImageReciever(common.Receiver):
                         o.write(r.content)
         for i in files:
             try:
-                self.callback(*image_coding.decode_single_page(i))
+                self.callback(*image_coding.decode_bw(i))
             except:
                 pass

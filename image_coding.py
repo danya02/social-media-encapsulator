@@ -8,7 +8,7 @@ def chunks(l, n):
     """Yield successive n-sized chunks from l."""
     for i in range(0, len(l), n):
         yield l[i:i + n]
-def write_line(surface,line,data,integer=True,rjust=True):
+def write_line_bw(surface,line,data,integer=True,rjust=True):
     '''Write some data to a line on a surface. If integer is true, data is assumed to be an int, else a bitstring.'''
     if integer:
         data=bin(data)[2:]
@@ -20,7 +20,7 @@ def write_line(surface,line,data,integer=True,rjust=True):
         if b=='1':
             surface.set_at((x,line),pygame.Color('white'))
 
-def encode_single_page(item_id,data,width,height, part_num, max_part_num):
+def encode_bw(item_id,data,width,height, part_num, max_part_num):
     if height<=5:
         raise ValueError('Height must be at least 6.')
     if width*(height-5)<len(data):
@@ -43,7 +43,7 @@ def encode_single_page(item_id,data,width,height, part_num, max_part_num):
     pygame.image.save(surface,f)
     return f
 
-def read_line(surface,line):
+def read_line_bw(surface,line):
     '''Read a bitstring from a line from a surface.'''
     data=''
     for i in range(surface.get_width()):
@@ -65,7 +65,7 @@ def split_by_ids(files):
         items.update({id:items.get(id,[])+[i]})
     return items
 
-def decode_single_page(file):
+def decode_bw(file):
     surface = pygame.image.load(file)
     id = int(read_line(surface,0),2)
     page_num = int(read_line(surface,1),2)

@@ -8,6 +8,6 @@ It has to be noted, however, that they support pictures, videos, audios and text
 
 Hmm...
 
-2 November 2017: The original idea has proven to be a bust.
-It would appear as if major social media encode their pictures in JPG, which is a lossy format, and discard the lossless originals.
-Since this program depends on losslessness of the pictures, that wouldn't work.
+-----
+
+Apart from the dependencies listed in requirements.txt, this also needs [ZBar](http://zbar.sourceforge.net/download.html) to be installed, or an equivalent program that is called `zbarimg`, takes a single argument of the path to image, and writes `[any text]:[content of qr-code]` as a single line to stdout.

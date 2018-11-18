@@ -1,4 +1,11 @@
-# Encoding description v.0.0.4
+# Encoding standards v.0.0.5
+
+## Text
+The data is encoded using Base64 encoding.
+The text contains `[id]:[part-number]:[last-part-number]:[base64-encoded-data]`.
+Any whitespace symbols are to be ignored.
+This text format can be encoded into a medium other than text, such as QR-codes; however, the image encoding (below) should be considered first.
+
 ## Images
 Pixels are to be read sequentially from left to right, and vertically downwards, i. e. normal western text reading order.
 

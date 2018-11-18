@@ -11,8 +11,8 @@ class VkWallImageTransmitter(common.Transmitter):
     def __init__(self,connection):
         self.connection = connection
     def send(self,id,data,part,partmax):
-        width = max(128,math.ceil(math.sqrt(len(data)))) # make more optimal!
-        height = width
+        width = 2560 # make more optimal!
+        height = 2048
         file=image_coding.encode_bw(id,data,width,height,part,partmax)
         uploader = vk_api.upload.VkUpload(self.connection)
         photo_id = uploader.photo_wall(file)[0]
@@ -24,9 +24,13 @@ class VkWallImageTransmitter(common.Transmitter):
         api = self.connection.get_api()
         api.wall.delete(post_id=id['post']['post_id'])
         api.photos.delete(photo_id=id['photo']['id'])
+    def get_max_length():
+        return 2560*(2048-5)
+
 
 class VkWallImageReciever(common.Receiver):
     def __init__(self,connection,peer_id):
+        super().__init__()
         self.connection = connection
         self.peer = peer_id
         data = self.connection.get_api().wall.get(owner_id=peer_id)

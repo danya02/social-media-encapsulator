@@ -1,4 +1,4 @@
-# Encoding standards v.0.0.5
+# Encoding standards v.0.0.6
 
 ## Text
 The data is encoded using Base64 encoding.
@@ -51,3 +51,14 @@ The number is to be broken across 2 lines; thus, if this piece is 69 bits long a
 
 
 The rest of the file contains the actual data for this piece, wrapped at line length.
+
+
+
+## Videos
+
+A video is regarded as a series of frames.
+Each frame is a QR-code.
+The first frame contains the length of the video.
+The second frame is the video's part number in a transmission, and the third frame the number of parts.
+The remaining frames contain Base64-encoded data.
+The data frames are to be concatenated in the order they appear in the video to get the data.

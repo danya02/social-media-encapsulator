@@ -5,7 +5,7 @@ import pygame
 import uuid
 import base64
 
-def encode_qr(text):
+def encode_qr(text,output=None):
     qr = qrcode.QRCode()
     qr.add_data(text)
     data=qr.get_matrix()
@@ -16,7 +16,10 @@ def encode_qr(text):
             if v:
                 s.set_at((x,y),pygame.Color('black'))
     s=pygame.transform.scale(s,(s.get_width()*8,s.get_height()*8))
-    f=f'/tmp/{uuid.uuid4().hex}.png'
+    if output is None:
+        f=f'/tmp/{uuid.uuid4().hex}.png'
+    else:
+        f=output
     pygame.image.save(s,f)
     return f
 

@@ -8,6 +8,18 @@ class Message:
         self.id=id
         if self.id is None:
             self.id=int(uuid.uuid4().hex,16)
+
+    @classmethod
+    def from_file(cls,file: file, id:int=None) -> Message:
+        '''
+        Create a message that has this file's data as its own.
+        '''
+        if isinstance(file,str):
+            file = open(file,'rb')
+        data=file.read()
+        m = cls(data,id)
+        return m
+
     def parcellate(self,transmitters):
         '''
         Split the data this message holds into pieces suitable for each transmitter.

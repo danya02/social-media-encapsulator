@@ -26,6 +26,8 @@ def encode_qr(text,output=None):
 def decode_qr(file):
     with os.popen(f'zbarimg "{file}"') as o:
         _,__,data=o.read().partition(':')
+    if data=='':
+        raise ValueError('Not a valid QR code!')
     return data
 
 def encode(id,data,part,partmax):

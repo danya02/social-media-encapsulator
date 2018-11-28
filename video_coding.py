@@ -37,7 +37,7 @@ def create_video_from_data(datalist):
     for i in ps:i.start()
     for i in ps:i.join()
 
-    os.popen(f'ffmpeg -f concat -safe 0 -r 30 -i {dir}concat.txt -vsync vfr -r 30 {dir}combined.mp4').read()
+    os.popen(f'ffmpeg -f concat -safe 0 -r 5 -i {dir}concat.txt -vsync vfr -r 5 {dir}combined.mp4').read()
     return f'{dir}combined.mp4'
 
 def combine_video(files):
@@ -48,7 +48,7 @@ def combine_video(files):
         o.write(concat)
         o.write(f"\nfile '{files[-1]}'")
 
-    os.popen(f'ffmpeg -f concat -safe 0 -r 30 -i {dir}concat.txt -vsync vfr -r 30 {dir}combined.mp4').read()
+    os.popen(f'ffmpeg -f concat -safe 0 -r 5 -i {dir}concat.txt -vsync vfr -r 5 {dir}combined.mp4').read()
     return f'{dir}combined.mp4'
 
 def split_video(video):

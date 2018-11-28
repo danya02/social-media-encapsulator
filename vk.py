@@ -25,7 +25,7 @@ class VkWallImageTransmitter(common.Transmitter):
         api = self.connection.get_api()
         api.wall.delete(post_id=id['post']['post_id'])
         api.photos.delete(photo_id=id['photo']['id'])
-    def get_max_length():
+    def get_max_length(self):
         return 2560*(2048-5)
 
 class VkWallVideoTransmitter(common.Transmitter):
@@ -57,7 +57,7 @@ class VkChatImageTransmitter(common.Transmitter):
         except:
             pass
         api.photos.delete(photo_id=id['photo']['id'])
-    def get_max_length():
+    def get_max_length(self):
         return 2560*(2048-5)
 
 

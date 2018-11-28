@@ -13,7 +13,7 @@ class Message:
         return f'Message({self.data}, {self.id})'
 
     @classmethod
-    def from_file(cls,file: file, id:int=None) -> Message:
+    def from_file(cls,file, id:int=None):
         '''
         Create a message that has this file's data as its own.
         '''
@@ -38,6 +38,7 @@ class Message:
         splits=[]
         while not head>=len(self.data):
             for i in transmitters:
+                if head>=len(self.data):break
                 newdata=self.data[head:head+i.get_max_length()]
                 splits+=[(i,newdata,len(splits)+1)]
                 head+=i.get_max_length()

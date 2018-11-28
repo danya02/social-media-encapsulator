@@ -16,7 +16,7 @@ class ReceptionManager:
         self.incomplete={}
     def add_receiver(self,recv):
         recv.callback = self.part_callback
-        thread=threading.Thread(target=recv.receive_loop)
+        thread=threading.Thread(target=recv.receive_loop,daemon=True)
         thread.start()
         self.recv_threads.append(thread)
         self.receivers.append(recv)

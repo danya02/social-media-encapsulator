@@ -9,6 +9,9 @@ class Message:
         if self.id is None:
             self.id=int(uuid.uuid4().hex,16)
 
+    def __repr__(self):
+        return f'Message({self.data}, {self.id})'
+
     @classmethod
     def from_file(cls,file: file, id:int=None) -> Message:
         '''

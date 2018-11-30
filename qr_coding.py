@@ -15,7 +15,7 @@ def encode_qr(text,output=None):
         for x,v in enumerate(l):
             if v:
                 s.set_at((x,y),pygame.Color('black'))
-    s=pygame.transform.scale(s,(s.get_width()*8,s.get_height()*8))
+    s=pygame.transform.scale(s,(800,800))
     if output is None:
         f=f'/tmp/{uuid.uuid4().hex}.png'
     else:

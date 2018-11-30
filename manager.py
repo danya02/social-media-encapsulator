@@ -31,3 +31,24 @@ class ReceptionManager:
         if None not in self.incomplete[id]:
             m = common.Message(b''.join(self.incomplete[id]),id)
             self.message_callback(m)
+
+class Manager:
+    def __init__(self):
+        self.reception=ReceptionManager()
+        self.transmission=TransmissionManager()
+        self.seen_messages = []
+        self.reception.message_callback = self.test_hash
+    def add_receiver(self,recv):
+        self.reception.add_receiver(recv)
+    def add_transmitter(self,xmit):
+        self.transmission.transmitters.append(xmit)
+    def send(self,message):
+            self.seen_messages.append((message.hash,len(message)))
+            self.transmission.send(message)
+    def test_hash(self,message):
+        group = (message.hash,len(message))
+        if group not in self.seen_messages:
+            self.seen_messages.append(group)
+            self.message_callback(message)
+    def message_callback(self,message):
+        print('Received message: ',message)

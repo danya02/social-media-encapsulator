@@ -1,11 +1,23 @@
 #!/usr/bin/python3
 import uuid
 import random
+import hashlib
 
 class Message:
+    def __getattr__(self,attr):
+        if attr=='hash':
+            h = hashlib.sha256()
+            h.update(self.data)
+            return h.hexdigest()
+        return object.__getattr__(self,attr)
+
+    def __len__(self):
+        return len(self.data)
+
     def __init__(self, data:bytes, id:int=None):
         self.data=data
         self.id=id
+        self.hash = None
         if self.id is None:
             self.id=int(uuid.uuid4().hex,16)
 

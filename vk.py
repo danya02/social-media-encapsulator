@@ -144,6 +144,7 @@ class VkChatImageReceiver(common.Receiver):
         files=[]
         for i in api.messages.getHistory(peer_id=self.peer)['items']:
             if i['id']>self.last_received:
+                self.last_received=i['id']
                 if 'attachments' in i:
                     for q in i['attachments']:
                         if q['type']=='photo':

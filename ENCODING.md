@@ -60,5 +60,5 @@ A video is regarded as a series of frames.
 Each frame is a QR-code.
 The first frame contains the length of the video.
 The second frame is the video's part number in a transmission, and the third frame the number of parts.
-The remaining frames contain Base64-encoded data.
+The remaining frames contain, in Base64, a part of the data that's gzipped.
 The data frames are to be concatenated in the order they appear in the video to get the data.

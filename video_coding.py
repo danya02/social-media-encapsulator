@@ -4,6 +4,7 @@ import uuid
 import base64
 import multiprocessing
 import string
+import gzip
 
 # from https://stackoverflow.com/a/312464/5936187
 def chunks(l, n):
@@ -13,8 +14,8 @@ def chunks(l, n):
 
 def create_video(id,data,part,maxpart):
     datalist=[str(id),str(part),str(maxpart)]
-    for i in chunks(data,512):
-        datalist.append(str(base64.b64encode(i),'utf-8'))
+    for i in chunks(data,256):
+        datalist.append(str(base64.b64encode(gzip.compress(i,9)),'utf-8'))
     return create_video_from_data(datalist)
 
 def create_video_from_data(datalist):
@@ -58,18 +59,15 @@ def split_video(video):
     return [(dir+i) for i in sorted(os.listdir(dir),key=lambda x:int(x.split('.')[0]))]
 
 def read_frames(files):
-    filearr=[]
-    for i in files:
-        d=qr_coding.decode_qr(i)
-        for n in string.whitespace:
-            d=d.replace(n,'')
-        filearr.append(d)
+    filearr=qr_coding.decode_many_qr(files)
+    print(filearr)
     id=int(filearr[0])
     part=int(filearr[1])
     maxpart=int(filearr[2])
     data=b''
     for i in filearr[3:]:
-        data+=base64.b64decode(bytes(i,'utf-8'))
+        data+=gzip.decompress(base64.b64decode(bytes(i,'utf-8')))
+    print(id,data,part,maxpart)
     return id,data,part,maxpart
 
 def decode_video(file):

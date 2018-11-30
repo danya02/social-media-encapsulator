@@ -7,6 +7,9 @@ import json
 import requests
 import uuid
 import video_coding
+import bs4
+import re
+import traceback
 
 class VkWallImageTransmitter(common.Transmitter):
     def __init__(self,connection):
@@ -94,7 +97,7 @@ class VkWallImageReciever(common.Receiver):
             try:
                 self.callback(*image_coding.decode_bw(i))
             except:
-                pass
+                traceback.print_exc()
 
 class VkWallVideoReceiver(common.Receiver):
     def __init__(self,connection,peer_id):
@@ -104,33 +107,39 @@ class VkWallVideoReceiver(common.Receiver):
         data = self.connection.get_api().wall.get(owner_id=peer_id)
         self.last_received = data['items'][0]['id']
     def receive_once(self):
-        useragent = self.connection.http.headers.pop('User-agent')
-        print(self.connection.http.headers)
-
+        print(self.last_received)
         api = self.connection.get_api()
         post = api.wall.getById(posts=f'{self.peer}_{self.last_received+1}')
         if post==[]:
             return
-        self.last_received+=1
         post=post[0]
         if 'attachments' not in post:
             return
         files=[]
+        self.last_received+=1
         for i in post['attachments']:
             if i['type']=='video':
-                getobj = api.video.get(videos=str(i['video']['owner_id'])+'_'+str(i['video']['id']), extended=1)['items'][0]
-                print(getobj)
-                url = getobj['files'][sorted([q for q in getobj['files'] if 'mp4' in q])[-1]] # FIXME: probably fragile, replace with solid seeker of largest video
-                filepath = f'/tmp/{uuid.uuid4().hex}.mp4'
-                with requests.get(url) as conn, open(filepath,'wb') as outp:
-                    outp.write(conn.content)
-                files.append(filepath)
-        self.connection.http.headers.update({'User-agent':useragent})
+                try:
+                    getobj = api.video.get(videos=str(i['video']['owner_id'])+'_'+str(i['video']['id']), extended=1)['items'][0]
+                    with requests.get(getobj['player']) as r:
+                        page = r.text
+                    page = bs4.BeautifulSoup(page)
+                    node = page.find("video")
+                    urls=[j.get('src') for j in node.find_all('source')]
+                    sizes=[(re.findall('videos.+\.\d+\.mp4',j)[0] if re.findall('videos.+\.\d+\.mp4',j) else 'videos/qqq.0.mp4') for j in urls]
+                    sizes=[int(j.split('.')[1]) for j in sizes]
+                    url=urls[sizes.index(max(sizes))]
+                    filepath = f'/tmp/{uuid.uuid4().hex}.mp4'
+                    with requests.get(url) as conn, open(filepath,'wb') as outp:
+                        outp.write(conn.content)
+                    files.append(filepath)
+                except:
+                    traceback.print_exc()
         for i in files:
             try:
                 self.callback(*video_coding.decode_video(i))
             except:
-                pass
+                traceback.print_exc()
 
 class VkChatImageReceiver(common.Receiver):
     def __init__(self,connection,peer_id):
@@ -162,4 +171,4 @@ class VkChatImageReceiver(common.Receiver):
             try:
                 self.callback(*image_coding.decode_bw(i))
             except:
-                pass
+                traceback.print_exc()

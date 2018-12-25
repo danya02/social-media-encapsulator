@@ -80,7 +80,7 @@ class Receiver:
     def stop_loop(self):
         '''Stop a loop previously started with receive_loop.'''
         self._stop = True
-    def receive_loop(self):
+    def receive_loop(self, manager):
         '''
         Loop waiting for messages until stop_loop is called.
         When a message part is received, run the callback with the arguments of id, data, part number, maximum part number.
@@ -88,14 +88,15 @@ class Receiver:
         This is just a convinience function for starting a thread.
         '''
         while not self._stop:
-            self.receive_once()
+            self.receive_once(manager)
         self._stop=False
-    def receive_once(self):
+    def receive_once(self, manager):
         '''
         Try to get new data once.
         If a message part is received, run the callback with the arguments of id, data, part number, maximum part number.
         '''
-    @staticmethod
+        raise NotImplementedError
+
     def callback(id, data, part, max_part):
         '''Callback for getting data from the receiver. Replace this with your own method.'''
         pass

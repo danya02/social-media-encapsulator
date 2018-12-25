@@ -71,7 +71,7 @@ class VkWallImageReciever(common.Receiver):
         self.peer = peer_id
         data = self.connection.get_api().wall.get(owner_id=peer_id)
         self.last_received = data['items'][0]['id']
-    def receive_once(self):
+    def receive_once(self, manager):
         api = self.connection.get_api()
         post = api.wall.getById(posts=f'{self.peer}_{self.last_received+1}')
         if post==[]:
@@ -95,7 +95,7 @@ class VkWallImageReciever(common.Receiver):
                         o.write(r.content)
         for i in files:
             try:
-                self.callback(*image_coding.decode_bw(i))
+                image_coding.decode_bw(i, manager)
             except:
                 traceback.print_exc()
 
@@ -106,7 +106,7 @@ class VkWallVideoReceiver(common.Receiver):
         self.peer = peer_id
         data = self.connection.get_api().wall.get(owner_id=peer_id)
         self.last_received = data['items'][0]['id']
-    def receive_once(self):
+    def receive_once(self, manager):
         print(self.last_received)
         api = self.connection.get_api()
         post = api.wall.getById(posts=f'{self.peer}_{self.last_received+1}')
@@ -137,10 +137,10 @@ class VkWallVideoReceiver(common.Receiver):
                     traceback.print_exc()
         for i in files:
             try:
-                self.callback(*video_coding.decode_video(i))
+                video_coding.decode_video(i, manager)
             except:
                 traceback.print_exc()
-
+        manager.collapse_full()
 class VkChatImageReceiver(common.Receiver):
     def __init__(self,connection,peer_id):
         super().__init__()
@@ -148,7 +148,7 @@ class VkChatImageReceiver(common.Receiver):
         self.peer = peer_id
         data = self.connection.get_api().messages.getHistory(peer_id=peer_id)
         self.last_received = data['items'][0]['id']
-    def receive_once(self):
+    def receive_once(self, manager):
         api = self.connection.get_api()
         files=[]
         for i in api.messages.getHistory(peer_id=self.peer)['items']:
@@ -169,6 +169,6 @@ class VkChatImageReceiver(common.Receiver):
                                     o.write(r.content)
         for i in files:
             try:
-                self.callback(*image_coding.decode_bw(i))
+                image_coding.decode_bw(i, manager)
             except:
                 traceback.print_exc()

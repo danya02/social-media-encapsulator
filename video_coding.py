@@ -60,22 +60,23 @@ def split_video(video):
     os.popen(f'ffmpeg -y -i "{video}" -f image2 {dir}%d.png').read()
     return [(dir+i) for i in sorted(os.listdir(dir),key=lambda x:int(x.split('.')[0]))]
 
-def read_frames(files):
+def read_frames(files, manager):
     filearr=qr_coding.decode_many_qr(files)
     print(filearr)
     data=dict()
-    id,part,maxpart,vidpart,vidmaxpart,encdata = filearr[0].split(':')
     for i in filearr:
-        nid,npart,nmaxpart,vidpart,nvidmaxpart,encdata = i.split(':')
-        if nid!=id or npart!=part or nmaxpart!=maxpart or nvidmaxpart!=vidmaxpart:
-            raise AssertionError('Value assumed constant inside video changed from first frame') # TODO: Make this not necessary
+        id,part,maxpart,vidpart,vidmaxpart,encdata = i.split(':')
+        id=int(id)
+        part=int(part)
+        vidpart=int(vidpart)
+        vidmaxpart=int(vidmaxpart)
 
-        data.update({int(vidpart):gzip.decompress(base64.b64decode(bytes(encdata,'utf-8')))}
-    datastr=b''
-    for i in range(vidmaxpart):
-        datastr+=data[i]
-    print(id,data,part,maxpart)
-    return id,data,part,maxpart
+        if id not in manager.incomplete:
+            manager.incomplete.update({id:[None for q in range(maxpart)]})
+        if not isinstance(manager.incomplete[id][part-1], list):
+            manager.incomplete[id][part-1]=[None for q in range(vidmaxpart)]
+        if not isinstance(manager.incomplete[id][part-1][vidpart], bytes):
+            manager.incomplete[id][part-1][vidpart]=gzip.decompress(base64.b64decode(bytes(encdata,'utf-8')))
 
-def decode_video(file):
-    return read_frames(split_video(file))
+def decode_video(file, manager):
+    read_frames(split_video(file), manager)

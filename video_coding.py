@@ -5,6 +5,7 @@ import base64
 import multiprocessing
 import string
 import gzip
+import math
 
 # from https://stackoverflow.com/a/312464/5936187
 def chunks(l, n):
@@ -13,9 +14,10 @@ def chunks(l, n):
         yield l[i:i + n]
 
 def create_video(id,data,part,maxpart):
-    datalist=[str(id),str(part),str(maxpart)]
-    for i in chunks(data,256):
-        datalist.append(str(base64.b64encode(gzip.compress(i,9)),'utf-8'))
+    datalist=[]
+    size = math.ceil(len(data)/256)
+    for n,i in enumerate(chunks(data,256)):
+        datalist.append(f"{id}:{part}:{n}:{size}:{maxpart}:{str(base64.b64encode(gzip.compress(i,9)),'utf-8')}")
     return create_video_from_data(datalist)
 
 def create_video_from_data(datalist):
@@ -38,7 +40,7 @@ def create_video_from_data(datalist):
     for i in ps:i.start()
     for i in ps:i.join()
 
-    os.popen(f'ffmpeg -f concat -safe 0 -r 1 -i {dir}concat.txt -vsync vfr -r 1 {dir}combined.mp4').read()
+    os.popen(f'ffmpeg -f concat -safe 0 -r 10 -i {dir}concat.txt -vsync vfr -r 10 {dir}combined.mp4').read()
     return f'{dir}combined.mp4'
 
 def combine_video(files):
@@ -49,7 +51,7 @@ def combine_video(files):
         o.write(concat)
         o.write(f"\nfile '{files[-1]}'")
 
-    os.popen(f'ffmpeg -f concat -safe 0 -r 1 -i {dir}concat.txt -vsync vfr -r 1 {dir}combined.mp4').read()
+    os.popen(f'ffmpeg -f concat -safe 0 -r 10 -i {dir}concat.txt -vsync vfr -r 10 {dir}combined.mp4').read()
     return f'{dir}combined.mp4'
 
 def split_video(video):
@@ -61,12 +63,17 @@ def split_video(video):
 def read_frames(files):
     filearr=qr_coding.decode_many_qr(files)
     print(filearr)
-    id=int(filearr[0])
-    part=int(filearr[1])
-    maxpart=int(filearr[2])
-    data=b''
-    for i in filearr[3:]:
-        data+=gzip.decompress(base64.b64decode(bytes(i,'utf-8')))
+    data=dict()
+    id,part,maxpart,vidpart,vidmaxpart,encdata = filearr[0].split(':')
+    for i in filearr:
+        nid,npart,nmaxpart,vidpart,nvidmaxpart,encdata = i.split(':')
+        if nid!=id or npart!=part or nmaxpart!=maxpart or nvidmaxpart!=vidmaxpart:
+            raise AssertionError('Value assumed constant inside video changed from first frame') # TODO: Make this not necessary
+
+        data.update({int(vidpart):gzip.decompress(base64.b64decode(bytes(encdata,'utf-8')))}
+    datastr=b''
+    for i in range(vidmaxpart):
+        datastr+=data[i]
     print(id,data,part,maxpart)
     return id,data,part,maxpart
 

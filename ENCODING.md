@@ -1,4 +1,4 @@
-# Encoding standards v.0.0.6
+# Encoding standards v.0.0.7
 
 ## Text
 The data is encoded using Base64 encoding.
@@ -43,7 +43,7 @@ The ID must be unique to this object, or at least as unique as possible.
 The next two lines indicate this piece's number: the first line the number of this piece (from 1 upwards), and the second line the number of the last piece.
 
 The following 2 lines indicate this piece's length, in bits.
-The number is to be broken across 2 lines; thus, if this piece is 69 bits long and has a width of 10 pixels, then the values will be:
+The number is to be broken across 2 lines; thus, if this piece is 69 bytes long and has a width of 10 pixels, then the values will be:
 
 `0000000000`
 
@@ -58,7 +58,5 @@ The rest of the file contains the actual data for this piece, wrapped at line le
 
 A video is regarded as a series of frames.
 Each frame is a QR-code.
-The first frame contains the length of the video.
-The second frame is the video's part number in a transmission, and the third frame the number of parts.
-The remaining frames contain, in Base64, a part of the data that's gzipped.
-The data frames are to be concatenated in the order they appear in the video to get the data.
+Each QR code has to contain a string of this message's ID, this video's part number, the overall part number, this frame's number, the total number of frames, and the actual data piece (first gzip-ed, then Base64-coded), all separated by colons (":", ASCII 58 or 0x3a).
+The reason each frame includes its own number in a movie is to avoid transposition errors, as well as to allow frames to be duplicated (for transmission through channels known to truncate videos).

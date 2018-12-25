@@ -59,4 +59,5 @@ The rest of the file contains the actual data for this piece, wrapped at line le
 A video is regarded as a series of frames.
 Each frame is a QR-code.
 Each QR code has to contain a string of this message's ID, this video's part number, the overall part number, this frame's number, the total number of frames, and the actual data piece (first gzip-ed, then Base64-coded), all separated by colons (":", ASCII 58 or 0x3a).
+Note that these video-specific frame numbers are 0-indexed, rather than 1-indexed like the part numbers are.
 The reason each frame includes its own number in a movie is to avoid transposition errors, as well as to allow frames to be duplicated (for transmission through channels known to truncate videos).

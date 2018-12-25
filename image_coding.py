@@ -116,6 +116,7 @@ def decode_bw(file, manager):
     if id not in manager.incomplete:
         manager.incomplete.update({id:[None for i in range(last_page_num)]})
     manager.incomplete[id][page_num-1]=data
+    manager.collapse_full()
 
 def decode_color(file, manager):
     surface = pygame.image.load(file)
@@ -131,6 +132,7 @@ def decode_color(file, manager):
     if id not in manager.incomplete:
         manager.incomplete.update({id:[None for i in range(last_page_num)]})
     manager.incomplete[id][page_num-1]=data
+    manager.collapse_full()
 
 if __name__=='__main__':
     #files=encode(int('1010101010',2),b'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',64,64)

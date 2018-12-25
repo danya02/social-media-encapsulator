@@ -80,3 +80,4 @@ def read_frames(files, manager):
 
 def decode_video(file, manager):
     read_frames(split_video(file), manager)
+    manager.collapse_full()

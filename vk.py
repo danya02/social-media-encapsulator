@@ -50,7 +50,7 @@ class VkChatImageTransmitter(common.Transmitter):
         uploader = vk_api.upload.VkUpload(self.connection)
         photo_id = uploader.photo_messages(file)[0]
         api = self.connection.get_api()
-        message_id = api.messages.send(peer_id=self.peer_id,attachment=f'photo{ photo_id["owner_id"] }_{ photo_id["id"] }')
+        message_id = api.messages.send(peer_id=self.peer_id,attachment=f'photo{ photo_id["owner_id"] }_{ photo_id["id"] }', random_id=0)
         return json.dumps({'message':message_id,'photo':photo_id})
     def remove(self,id):
         id = json.loads(id)

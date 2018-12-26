@@ -15,8 +15,8 @@ class VkWallImageTransmitter(common.Transmitter):
     def __init__(self,connection):
         self.connection = connection
     def send(self,id,data,part,partmax):
-        width = 2560 # make more optimal!
-        height = 2048
+        width = min(max(64,id.bit_length(), part.bit_length(), partmax.bit_length(), 5+int(math.sqrt(len(data)))), 2560)
+        height = min(max(64, 10+int(math.sqrt(len(data)))),2048)
         file=image_coding.encode_bw(id,data,width,height,part,partmax)
         uploader = vk_api.upload.VkUpload(self.connection)
         photo_id = uploader.photo_wall(file)[0]
@@ -44,8 +44,8 @@ class VkChatImageTransmitter(common.Transmitter):
         self.connection = connection
         self.peer_id = peer_id
     def send(self,id,data,part,partmax):
-        width = 2560 # make more optimal!
-        height = 2048
+        width = min(max(64,id.bit_length(), part.bit_length(), partmax.bit_length(), 5+int(math.sqrt(len(data)))), 2560)
+        height = min(max(64, 10+int(math.sqrt(len(data)))),2048)
         file=image_coding.encode_bw(id,data,width,height,part,partmax)
         uploader = vk_api.upload.VkUpload(self.connection)
         photo_id = uploader.photo_messages(file)[0]

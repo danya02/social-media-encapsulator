@@ -10,4 +10,4 @@ Hmm...
 
 -----
 
-Apart from the dependencies listed in requirements.txt, this also needs [ZBar](http://zbar.sourceforge.net/download.html) to be installed, or an equivalent program that is called `zbarimg`, takes a single argument of the path to image, and writes `[any text]:[content of qr-code]` as a single line to stdout.
+Apart from the dependencies listed in requirements.txt, this also needs [ZBar](http://zbar.sourceforge.net/download.html) to be installed, or an equivalent program that is called `zbarimg`, takes an argument list of `--raw` and an arbitrary number of image files, and prints out the data encoded in the QR codes.

@@ -5,12 +5,24 @@ import collections
 import json
 
 class TransmissionManager:
-    def __init__(self):
-        self.transmitters=[]
+    def __init__(self, transmitters=[]):
+        self.transmitters=transmitters
     def send(self, message):
         method = message.parcellate(self.transmitters)
         for i in method:
             i[0].send(message.id,i[1],i[2],len(method))
+    def dump(self):
+        return [i.save() for i in self.transmitters]
+
+    @classmethod
+    def load(cls, data):
+        xmits=[]
+        for i in data:
+            local = dict()
+            exec(i, globals(), local)
+            xmits.append(local['transmitter'])
+        return cls(xmits)
+
 
 # from https://stackoverflow.com/a/40857703/5936187
 
@@ -24,9 +36,11 @@ def flatten(items):
             yield x
 
 class ReceptionManager:
-    def __init__(self):
-        self.receivers=[]
+    def __init__(self, receivers=[]):
         self.recv_threads=[]
+        self.receivers=[]
+        for i in receivers:
+            self.add_receiver(i)
         self.incomplete={}
     def add_receiver(self,recv):
         thread=threading.Thread(target=recv.receive_loop, daemon=True, args=(self,))
@@ -50,47 +64,39 @@ class ReceptionManager:
             else:
                 m = common.Message(data, i)
                 self.message_callback(m)
+    def dump(self):
+        return [i.save() for i in self.receivers]
+
+    @classmethod
+    def load(cls, data):
+        recvs = []
+        for i in data:
+            local = dict()
+            exec(i, globals(), local)
+            recvs.append(local['receiver'])
+        return cls(recvs)
+
 
 class Manager:
-    def __init__(self, config='./social-media-config.json'):
-        self.config_path = config
-        try:
-            with open(config) as o:
-                self.config = json.load(o)
-        except (FileNotFoundError,json.decoder.JSONDecodeError):
-            self.config = {'000_README':'Your login credentials are stored here. You must keep this file secret and have backups.','transmitters':[], 'receivers': []}
-        self.reception=ReceptionManager()
-        self.transmission=TransmissionManager()
-        for i in self.config['receivers']:
-            local = dict()
-            exec(i, globals(), local)
-            try:
-                self.reception.add_receiver(local['receiver'])
-            except KeyError:
-                print('Name "receiver" not created by code:',i)
-        for i in self.config['transmitters']:
-            local = dict()
-            exec(i, globals(), local)
-            try:
-                self.transmission.transmitters.append(local['transmitter'])
-            except KeyError:
-                print('Name "transmitter" not created by code:',i)
+    def __init__(self, config=None):
+        self.config = config
+        if self.config is None:
+            self.config={'transmission':[], 'reception':[]}
+        self.transmission = TransmissionManager.load(self.config['transmission'])
+        self.reception = ReceptionManager.load(self.config['reception'])
+
         self.seen_messages = []
         self.reception.message_callback = self.test_hash
     def add_receiver(self,recv):
         s = recv.save()
-        if s not in self.config['receivers']:
+        if s not in self.config['reception']:
             self.reception.add_receiver(recv)
-            self.config['receivers'].append(s)
-            with open(self.config_path,'w') as o:
-                json.dump(self.config, o, indent=4, sort_keys=True)
+            self.config['reception'] = self.reception.dump()
     def add_transmitter(self,xmit):
         s = xmit.save()
-        if s not in self.config['transmitters']:
+        if s not in self.config['transmission']:
             self.transmission.transmitters.append(xmit)
-            self.config['transmitters'].append(s)
-            with open(self.config_path,'w') as o:
-                json.dump(self.config, o, indent=4, sort_keys=True)
+            self.config['transmission']=self.transmission.dump()
     def send(self,message):
         self.seen_messages.append((message.hash,len(message)))
         self.transmission.send(message)
@@ -101,3 +107,8 @@ class Manager:
             self.message_callback(message)
     def message_callback(self,message):
         print('Received message: ',message)
+    def dump(self):
+        return self.config
+    @classmethod
+    def load(cls, data):
+        return cls(data)

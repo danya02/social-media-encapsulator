@@ -2,6 +2,9 @@
 import uuid
 import random
 import hashlib
+import manager
+import json
+import time
 
 class Message:
     def __getattr__(self,attr):
@@ -58,6 +61,13 @@ class Message:
 
 
 class Transmitter:
+    def __hash__(self):
+        return 0
+    def __eq__(self, other):
+        return hash(self)==hash(other)
+    def __neq__(self, other):
+        return not (self==other)
+
     def __init__(self):
         pass
     def get_max_length(self):
@@ -85,6 +95,13 @@ class Transmitter:
         return 'import common\ntransmitter = Transmitter()'
 
 class Receiver:
+    def __hash__(self):
+        return 0
+    def __eq__(self, other):
+        return hash(self)==hash(other)
+    def __neq__(self, other):
+        return not (self==other)
+
     def __init__(self):
         self._stop=False
     def stop_loop(self):
@@ -99,6 +116,7 @@ class Receiver:
         '''
         while not self._stop:
             self.receive_once(manager)
+            time.sleep(2)
         self._stop=False
     def receive_once(self, manager):
         '''
@@ -121,3 +139,29 @@ class Receiver:
         variable.
         '''
         return 'import common\nreceiver = Receiver()'
+
+class Peer:
+    def __init__(self, id, manager):
+        '''This object describes a peer -- any entity to which data may be sent
+        and from which data may be received.
+        Methods of this object must be sufficient to broadcast to the peer
+        and to receive transmissions from the peer.'''
+        self.manager = manager
+        self.manager.message_callback = self.message_callback
+        self.id = id
+    def message_callback(self, message):
+        print(f'Peer {self.id} received message: {message}')
+    def send(self, message):
+        self.manager.send(message)
+    def dump(self):
+        return {'id':self.id, 'manager':self.manager.dump()}
+    @classmethod
+    def load(cls, data):
+        return cls(data['id'],manager.Manager.load(data['manager']))
+    def to_file(self, file):
+        with open(file,'w') as o:
+            json.dump(self.dump(), o, indent=4, sort_keys=True)
+    @classmethod
+    def from_file(cls,file):
+        with open(file) as o:
+            return cls.load(json.load(o))

@@ -30,6 +30,14 @@ class VkWallImageTransmitter(common.Transmitter):
         api.photos.delete(photo_id=id['photo']['id'])
     def get_max_length(self):
         return 2560*(2048-5)
+    def save(self):
+        return f'''
+import vk
+import vk_api
+connection = vk_api.VkApi('{self.connection.login}', '{self.connection.password}')
+connection.auth()
+transmitter = vk.VkWallImageTransmitter(connection)
+'''
 
 class VkWallVideoTransmitter(common.Transmitter):
     def __init__(self,connection):
@@ -38,6 +46,14 @@ class VkWallVideoTransmitter(common.Transmitter):
         vidpath=video_coding.create_video(id,data,part,partmax)
         upload = vk_api.VkUpload(self.connection)
         vid = upload.video(video_file=vidpath,wallpost=True)
+    def save(self):
+        return f'''
+import vk
+import vk_api
+connection = vk_api.VkApi('{self.connection.login}', '{self.connection.password}')
+connection.auth()
+transmitter = vk.VkWallVideoTransmitter(connection)
+'''
 
 class VkChatImageTransmitter(common.Transmitter):
     def __init__(self,connection,peer_id):
@@ -62,6 +78,14 @@ class VkChatImageTransmitter(common.Transmitter):
         api.photos.delete(photo_id=id['photo']['id'])
     def get_max_length(self):
         return 2560*(2048-5)
+    def save(self):
+        return f'''
+import vk
+import vk_api
+connection = vk_api.VkApi('{self.connection.login}', '{self.connection.password}')
+connection.auth()
+transmitter = vk.VkChatImageTransmitter(connection, {self.peer_id})
+'''
 
 
 class VkWallImageReciever(common.Receiver):
@@ -98,6 +122,14 @@ class VkWallImageReciever(common.Receiver):
                 image_coding.decode_bw(i, manager)
             except:
                 traceback.print_exc()
+    def save(self):
+        return f'''
+import vk
+import vk_api
+connection = vk_api.VkApi('{self.connection.login}', '{self.connection.password}')
+connection.auth()
+receiver = vk.VkWallImageReciever(connection, {self.peer})
+'''
 
 class VkWallVideoReceiver(common.Receiver):
     def __init__(self,connection,peer_id):
@@ -141,6 +173,14 @@ class VkWallVideoReceiver(common.Receiver):
             except:
                 traceback.print_exc()
         manager.collapse_full()
+    def save(self):
+        return f'''
+import vk
+import vk_api
+connection = vk_api.VkApi('{self.connection.login}', '{self.connection.password}')
+connection.auth()
+receiver = vk.VkWallVideoReceiver(connection, {self.peer})
+'''
 class VkChatImageReceiver(common.Receiver):
     def __init__(self,connection,peer_id):
         super().__init__()
@@ -172,3 +212,11 @@ class VkChatImageReceiver(common.Receiver):
                 image_coding.decode_bw(i, manager)
             except:
                 traceback.print_exc()
+    def save(self):
+        return f'''
+import vk
+import vk_api
+connection = vk_api.VkApi('{self.connection.login}', '{self.connection.password}')
+connection.auth()
+receiver = vk.VkChatImageReceiver(connection, {self.peer})
+'''

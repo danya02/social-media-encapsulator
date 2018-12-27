@@ -73,6 +73,16 @@ class Transmitter:
     def remove(self,id):
         '''Remove a previous transmission by its ID.'''
         raise NotImplementedError
+    def save(self) -> str:
+        '''
+        Save all relevant properties of this transmitter.
+
+        Return a string of Python code that can be exec-ed.
+        When it has finished running, it must put an instance of this class
+        with this instance's properties into the "transmitter" local-scope
+        variable.
+        '''
+        return 'import common\ntransmitter = Transmitter()'
 
 class Receiver:
     def __init__(self):
@@ -100,3 +110,14 @@ class Receiver:
     def callback(id, data, part, max_part):
         '''Callback for getting data from the receiver. Replace this with your own method.'''
         pass
+
+    def save(self) -> str:
+        '''
+        Save all relevant properties of this receiver.
+
+        Return a string of Python code that can be exec-ed.
+        When it has finished running, it must put an instance of this class
+        with this instance's properties into the "receiver" local-scope
+        variable.
+        '''
+        return 'import common\nreceiver = Receiver()'

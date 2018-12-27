@@ -2,6 +2,8 @@
 import threading
 import common
 import collections
+import json
+
 class TransmissionManager:
     def __init__(self):
         self.transmitters=[]
@@ -50,18 +52,48 @@ class ReceptionManager:
                 self.message_callback(m)
 
 class Manager:
-    def __init__(self):
+    def __init__(self, config='./social-media-config.json'):
+        self.config_path = config
+        try:
+            with open(config) as o:
+                self.config = json.load(o)
+        except (FileNotFoundError,json.decoder.JSONDecodeError):
+            self.config = {'000_README':'Your login credentials are stored here. You must keep this file secret and have backups.','transmitters':[], 'receivers': []}
         self.reception=ReceptionManager()
         self.transmission=TransmissionManager()
+        for i in self.config['receivers']:
+            local = dict()
+            exec(i, globals(), local)
+            try:
+                self.reception.add_receiver(local['receiver'])
+            except KeyError:
+                print('Name "receiver" not created by code:',i)
+        for i in self.config['transmitters']:
+            local = dict()
+            exec(i, globals(), local)
+            try:
+                self.transmission.transmitters.append(local['transmitter'])
+            except KeyError:
+                print('Name "transmitter" not created by code:',i)
         self.seen_messages = []
         self.reception.message_callback = self.test_hash
     def add_receiver(self,recv):
-        self.reception.add_receiver(recv)
+        s = recv.save()
+        if s not in self.config['receivers']:
+            self.reception.add_receiver(recv)
+            self.config['receivers'].append(s)
+            with open(self.config_path,'w') as o:
+                json.dump(self.config, o, indent=4, sort_keys=True)
     def add_transmitter(self,xmit):
-        self.transmission.transmitters.append(xmit)
+        s = xmit.save()
+        if s not in self.config['transmitters']:
+            self.transmission.transmitters.append(xmit)
+            self.config['transmitters'].append(s)
+            with open(self.config_path,'w') as o:
+                json.dump(self.config, o, indent=4, sort_keys=True)
     def send(self,message):
-            self.seen_messages.append((message.hash,len(message)))
-            self.transmission.send(message)
+        self.seen_messages.append((message.hash,len(message)))
+        self.transmission.send(message)
     def test_hash(self,message):
         group = (message.hash,len(message))
         if group not in self.seen_messages:
